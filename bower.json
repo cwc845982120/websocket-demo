@@ -1,0 +1,25 @@
+{
+  "name": "websocket-demo",
+  "description": "Learning for websocket.",
+  "main": "index.js",
+  "authors": [
+    "caowencheng <845982120@qq.com>"
+  ],
+  "license": "ISC",
+  "keywords": [
+    "websocket",
+    "nodejs"
+  ],
+  "homepage": "https://github.com/cwc845982120/websocket-demo",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "./lib",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^3.1.1"
+  }
+}
