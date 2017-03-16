@@ -1,0 +1,44 @@
+html,body,textarea,div{
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+body{
+    background-color: #f5f5f5;
+}
+.container{
+    width: 80%;
+    height: 50px;
+    border: 1px #242424 solid;
+    margin-left: 10%;
+    border-radius: 30px;
+    margin-top: 50%;
+    position: relative;
+}
+.userName{
+    height: 50px;
+    line-height: 50px;
+    margin-left: 20px;
+}
+.nameVal{
+    position: absolute;
+    left: 85px;
+    outline-style: none;
+    height: 43px;
+    width: 60%;
+    line-height: 43px;
+    font-size: 20px;
+    margin-top: 1px;
+    top: 0;
+}
+.submit{
+    width: 60%;
+    height: 50px;
+    line-height: 50px;
+    text-align: center;
+    border: 1px #242424 solid;
+    margin-left: 20%;
+    border-radius: 30px;
+    margin-top: 10%;
+    position: relative;
+}
