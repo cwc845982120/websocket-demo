@@ -4,6 +4,7 @@ var app = express();
 var http = require('http').Server(app);
 var ejs = require('ejs')
 var io = require('socket.io')(http);
+var crypto = require('crypto');
 
 //初始化变量
 var port = process.env.port || 3000; //默认端口号
