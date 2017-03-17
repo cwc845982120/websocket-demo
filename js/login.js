@@ -29,9 +29,42 @@ $(function() {
 
         //连接本地socket服务器
         ws = io.connect('ws://localhost:3000');
-        ws.onopen = function() {
-            console.log('open');
-        };
+
+        //监听断开连接
+        ws.on('disconnect', function(socket) {
+            var reconnect = setInterval(function() {
+                socket.reconnect();
+                //监听重新连接
+                ws.on('reconnect', function(socket) {
+                    alert("重连成功！");
+                    clearInterval(reconnect);
+                });
+            }, 60000);
+        });
+
+        //监听连接失败
+        ws.on('connect_failed', function(socket) {
+            var reconnect = setInterval(function() {
+                socket.reconnect();
+                //监听重新连接
+                ws.on('reconnect', function(socket) {
+                    alert("重连成功！");
+                    clearInterval(reconnect);
+                });
+            }, 60000);
+        });
+
+        //监听重新连接失败
+        ws.on('reconnect_failed', function(socket) {
+            var reconnect = setInterval(function() {
+                socket.reconnect();
+                //监听重新连接
+                ws.on('reconnect', function(socket) {
+                    alert("重连成功！");
+                    clearInterval(reconnect);
+                });
+            }, 60000);
+        });
 
         current_userName = $('.nameVal').val();
 
@@ -45,12 +78,18 @@ $(function() {
         }, 1000);
 
         //监听服务器端登陆
+        ws.on('loginErroe', function(data) {
+            alert(data.errorMsg);
+            return false;
+        });
+
+        //监听服务器端登陆
         ws.on('login', function(data) {
             history = history + "<div class = 'robotMsg'>" + data.msg + "</div>";
             $('.dialog').html(history);
             $('.dialog')[0].scrollTop = $('.dialog')[0].scrollHeight;
             var sonHeight = $('.self').height() + 10;
-            $('.msgBox').css('height',sonHeight);
+            $('.msgBox').css('height', sonHeight);
             $('.dialog')[0].scrollTop = $('.dialog')[0].scrollHeight;
         });
 
@@ -60,21 +99,21 @@ $(function() {
             $('.dialog').html(history);
             $('.dialog')[0].scrollTop = $('.dialog')[0].scrollHeight;
             var sonHeight = $('.self').height() + 10;
-            $('.msgBox').css('height',sonHeight);
+            $('.msgBox').css('height', sonHeight);
             $('.dialog')[0].scrollTop = $('.dialog')[0].scrollHeight;
         });
 
 
         //监听服务器端登出
         ws.on('message', function(data) {
-            if(data.username === current_userName){
+            if (data.username === current_userName) {
                 history = history + "<div class = 'msgBox'>" + "<div class = 'self'>" + data.content + "</div>" + "</div>";
-            }else{
+            } else {
                 history = history + "<div class = 'msgBox'>" + "<div class = 'other'>" + data.username + "说：" + "<span>" + data.content + "</span>" + "</div>" + "</div>";
             }
             $('.dialog').html(history);
             var sonHeight = $('.self').height() + 10;
-            $('.msgBox').css('height',sonHeight);
+            $('.msgBox').css('height', sonHeight);
             $('.dialog')[0].scrollTop = $('.dialog')[0].scrollHeight;
         });
 

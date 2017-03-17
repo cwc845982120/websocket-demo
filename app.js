@@ -8,6 +8,7 @@ var io = require('socket.io')(http);
 //初始化变量
 var port = process.env.port || 3000; //默认端口号
 var peopleNum = 0; //当前在线人数
+var maxOnlineNum = 5;//设置最大在线人数
 
 //定义模板引擎为html 默认视图展示目录为tpls文件下
 app.set('views', __dirname + '/tpls');
@@ -35,6 +36,15 @@ http.listen(port, function() {
 //监听websocket连接
 io.on('connection', function(socket) {
     peopleNum++;
+
+    //判断是否人数溢出
+    if(peopleNum >= maxOnlineNum){
+        var remoteObj = { errorMsg: '当前在线人数已满，请稍后重试!' };
+        io.sockets.emit('loginError', remoteObj);
+        peopleNum--;
+        return false;
+    };
+
     //监听消息发送
     socket.on('login', function(obj) {
         var remoteObj = { msg: '第' + peopleNum + '个用户已加入房间,登录名：' + obj.username };
