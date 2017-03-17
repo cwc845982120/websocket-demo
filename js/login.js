@@ -7,16 +7,59 @@ $(function() {
     var i = 0; //时间从0秒开始
     var history = ""; //历史记录
 
+    //加密函数，依赖GibberishAES、JSEncrypt
+    var RSA = function() {
+        // 获取公钥KEY(获取后端KEY)
+        var publicKey = 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC7X71YhlfLw5c+0OMsUbr8LQz2XpH8NtqCZo1lacIV7a7XtrtdWOE9L8HPim4nB8UD9gCn5raCPf4OopaPbb25UEVfOm6WC11aDwxOkNnK7pUr2qNri/qBR7CQOhQr0pjGfIqKNznoADwrS8TosE08xMgQtP8S8Cuxcll0Oe3FxQIDAQAB';
+        // REA加密组件JS方法
+        var RSAUtils = new JSEncryptObj();
+        var RSAUtils = new RSAUtils();
+        // 设置公钥
+        RSAUtils.setPublicKey(publicKey);
+        var GibberishAES = GibberishAESObj();
+        return {
+            generateMixed: function() {
+                var jschars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+                var key = "";
+                for (var i = 0; i < 16; i++) {
+                    var id = Math.ceil(Math.random() * 35);
+                    key += jschars[id];
+                }
+                return key;
+            },
+            AES_Encode: function(plain_text, key) {
+                GibberishAES.size(128);
+                return GibberishAES.aesEncrypt(plain_text, key);
+            },
+            RSA_Encode: function(key) {
+                return RSAUtils.encrypt(key);
+            }
+        };
+    };
+
+    //加密函数
+    var encrypt = function (params) {
+        params = _.extend({}, params);
+        var rsa = new RSA();
+        var _key = rsa.generateMixed();
+        _params = {
+            "creditPay": rsa.AES_Encode(JSON.stringify(params), _key),
+            "encodeKey": rsa.RSA_Encode(_key)
+        };
+        return _params;
+    };
+
     $('.submit_talk').click(function() {
         i = 0;
         var content = $('textarea').val();
         if (content != '') {
-            var obj = {
+            var params = {
                 //userid: this.userid,
                 username: current_userName,
                 content: content
             };
-            ws.emit('message', obj);
+            params = encrypt(params);
+            ws.emit('message', params);
             $('textarea').val('');
         } else {
             return false;
@@ -72,7 +115,9 @@ $(function() {
         var timer = setInterval(function() {
             i++;
             if (i === outTimes) {
-                ws.emit('logout', { username: current_userName });
+                var params = { username: current_userName };
+                params = encrypt(params);
+                ws.emit('logout', params);
                 window.location.reload();
             }
         }, 1000);
@@ -118,7 +163,9 @@ $(function() {
         });
 
         //告诉服务器端有用户登录
-        ws.emit('login', { username: current_userName });
+        var params = { username: current_userName };
+        params = encrypt(params);
+        ws.emit('login', params);
         if ($('.nameVal').val()) {
             $('.login').css('display', 'none');
             $('.talkTime').css('display', 'block');
@@ -131,8 +178,9 @@ $(function() {
     //点击登出按钮
     $('.logout').click(function() {
         i = 0;
-        //TODO 监听用户退出
-        ws.emit('logout', { username: current_userName });
+        var params = { username: current_userName };
+        params = encrypt(params);
+        ws.emit('logout', params);
         //简单的刷新页面
         window.location.reload();
     });
