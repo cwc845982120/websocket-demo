@@ -8,6 +8,7 @@ $(function() {
     var history = ""; //历史记录
     var isEncrypt = false; //是否加密
     var isDecrypt = false; //是否解密
+    var socketAdress = "ws://localhost:3000";//设置连接地址
 
     //加密函数，依赖GibberishAES、JSEncrypt
     var RSA = function() {
@@ -92,7 +93,7 @@ $(function() {
         var _params = {};
         var _data = {};
         //连接本地socket服务器
-        ws = io.connect('ws://localhost:3000');
+        ws = io.connect(socketAdress);
 
         //监听连接成功
         ws.on('connect', function(socket) {
@@ -105,7 +106,7 @@ $(function() {
             if (isConfirm) {
                 //每5s重新连接服务器一次
                 var reConnect = setInterval(function() {
-                        io.connect('ws://localhost:3000');
+                        io.connect(socketAdress);
                     },
                     5000);
             } else {
