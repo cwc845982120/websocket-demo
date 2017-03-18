@@ -6,6 +6,8 @@ $(function() {
     var outTimes = 60; //超时时间 默认60s
     var i = 0; //时间从0秒开始
     var history = ""; //历史记录
+    var isEncrypt = false;//是否加密
+    var isDecrypt = false;//是否解密
 
     //加密函数，依赖GibberishAES、JSEncrypt
     var RSA = function() {
@@ -51,6 +53,7 @@ $(function() {
 
     $('.submit_talk').click(function() {
         i = 0;
+        var _params = {};
         var content = $('textarea').val();
         if (content != '') {
             var params = {
@@ -58,8 +61,14 @@ $(function() {
                 username: current_userName,
                 content: content
             };
-            params = encrypt(params);
-            ws.emit('message', params);
+            if(isEncrypt){
+                //对数据加密 发送给服务器端
+                _params = encrypt(params);
+            }else{
+                //对数据不作处理 透传
+                 _params = params;
+            }
+            ws.emit('message', _params);
             $('textarea').val('');
         } else {
             return false;
@@ -70,6 +79,8 @@ $(function() {
     //点击登陆确认按钮
     $('.submit').click(function() {
 
+        var _params = {};
+        var _data = {};
         //连接本地socket服务器
         ws = io.connect('ws://localhost:3000');
 
@@ -114,23 +125,46 @@ $(function() {
         //设置定时器 超时自动登出
         var timer = setInterval(function() {
             i++;
+            var _params = {};
             if (i === outTimes) {
                 var params = { username: current_userName };
-                params = encrypt(params);
-                ws.emit('logout', params);
+                if(isEncrypt){
+                    //对数据加密 发送给服务器端
+                    _params = encrypt(params);
+                }else{
+                    //对数据不作处理 即不用加密
+                    _params = params;
+                }
+                ws.emit('logout', _params);
                 window.location.reload();
             }
         }, 1000);
 
         //监听服务器端登陆
         ws.on('loginErroe', function(data) {
-            alert(data.errorMsg);
+            var _data = {};
+            if(isDecrypt){
+                //TODO 对数据进行解密
+                _data = data;
+            }else{
+                //数据透传
+                _data = data;
+            }
+            alert(_data.errorMsg);
             return false;
         });
 
         //监听服务器端登陆
         ws.on('login', function(data) {
-            history = history + "<div class = 'robotMsg'>" + data.msg + "</div>";
+            var _data = {};
+            if(isDecrypt){
+                //TODO 对数据进行解密
+                _data = data;
+            }else{
+                //数据透传
+                _data = data;
+            }
+            history = history + "<div class = 'robotMsg'>" + _data.msg + "</div>";
             $('.dialog').html(history);
             $('.dialog')[0].scrollTop = $('.dialog')[0].scrollHeight;
             var sonHeight = $('.self').height() + 10;
@@ -140,7 +174,15 @@ $(function() {
 
         //监听服务器端登出
         ws.on('logout', function(data) {
-            history = history + "<div class = 'robotMsg'>" + data.msg + "</div>";
+            var _data = {};
+            if(isDecrypt){
+                //TODO 对数据进行解密
+                _data = data;
+            }else{
+                //数据透传
+                _data = data;
+            }
+            history = history + "<div class = 'robotMsg'>" + _data.msg + "</div>";
             $('.dialog').html(history);
             $('.dialog')[0].scrollTop = $('.dialog')[0].scrollHeight;
             var sonHeight = $('.self').height() + 10;
@@ -151,10 +193,18 @@ $(function() {
 
         //监听服务器端登出
         ws.on('message', function(data) {
-            if (data.username === current_userName) {
-                history = history + "<div class = 'msgBox'>" + "<div class = 'self'>" + data.content + "</div>" + "</div>";
+            var _data = {};
+            if(isDecrypt){
+                //TODO 对数据进行解密
+                _data = data;
+            }else{
+                //数据透传
+                _data = data;
+            }
+            if (_data.username === current_userName) {
+                history = history + "<div class = 'msgBox'>" + "<div class = 'self'>" + _data.content + "</div>" + "</div>";
             } else {
-                history = history + "<div class = 'msgBox'>" + "<div class = 'other'>" + data.username + "说：" + "<span>" + data.content + "</span>" + "</div>" + "</div>";
+                history = history + "<div class = 'msgBox'>" + "<div class = 'other'>" + _data.username + "说：" + "<span>" + _data.content + "</span>" + "</div>" + "</div>";
             }
             $('.dialog').html(history);
             var sonHeight = $('.self').height() + 10;
@@ -164,8 +214,14 @@ $(function() {
 
         //告诉服务器端有用户登录
         var params = { username: current_userName };
-        params = encrypt(params);
-        ws.emit('login', params);
+        if(isEncrypt){
+            //对数据加密 发送给服务器端
+            _params = encrypt(params);
+        }else{
+            //对数据不作处理 透传
+             _params = params;
+        }
+        ws.emit('login', _params);
         if ($('.nameVal').val()) {
             $('.login').css('display', 'none');
             $('.talkTime').css('display', 'block');
@@ -178,9 +234,16 @@ $(function() {
     //点击登出按钮
     $('.logout').click(function() {
         i = 0;
+        var _params = {};
         var params = { username: current_userName };
-        params = encrypt(params);
-        ws.emit('logout', params);
+        if(isEncrypt){
+            //对数据加密 发送给服务器端
+            _params = encrypt(params);
+        }else{
+            //对数据不作处理 透传
+             _params = params;
+        }
+        ws.emit('logout', _params);
         //简单的刷新页面
         window.location.reload();
     });
