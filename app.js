@@ -136,28 +136,3 @@ io.on('connection', function(socket) {
         io.sockets.emit('message', _remoteObj);
     });
 });
-
-//监听断开连接
-io.on('disconnect', function(socket) {
-    //TODO
-});
-
-//监听连接失败
-io.on('connect_failed', function(socket) {
-    //TODO
-});
-
-//监听连接错误
-io.on('error', function(socket) {
-    //TODO
-});
-
-//监听重新连接
-io.on('reconnect', function(socket) {
-    //TODO
-});
-
-//监听重新连接失败
-io.on('reconnect_failed', function(socket) {
-    //TODO
-});

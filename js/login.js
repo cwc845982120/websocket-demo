@@ -3,11 +3,11 @@ $(function() {
     //初始化数据
     var ws = ""; //预先定义socket连接
     var current_userName = ""; //当前用户名
-    var outTimes = 60; //超时时间 默认60s
+    var outTimes = 600; //超时时间 默认600s
     var i = 0; //时间从0秒开始
     var history = ""; //历史记录
-    var isEncrypt = false;//是否加密
-    var isDecrypt = false;//是否解密
+    var isEncrypt = false; //是否加密
+    var isDecrypt = false; //是否解密
 
     //加密函数，依赖GibberishAES、JSEncrypt
     var RSA = function() {
@@ -40,7 +40,7 @@ $(function() {
     };
 
     //加密函数
-    var encrypt = function (params) {
+    var encrypt = function(params) {
         params = _.extend({}, params);
         var rsa = new RSA();
         var _key = rsa.generateMixed();
@@ -61,16 +61,17 @@ $(function() {
                 username: current_userName,
                 content: content
             };
-            if(isEncrypt){
+            if (isEncrypt) {
                 //对数据加密 发送给服务器端
                 _params = encrypt(params);
-            }else{
+            } else {
                 //对数据不作处理 透传
-                 _params = params;
+                _params = params;
             }
             ws.emit('message', _params);
             $('textarea').val('');
         } else {
+            alert('不能发送空的文本信息！');
             return false;
         }
     });
@@ -79,45 +80,47 @@ $(function() {
     //点击登陆确认按钮
     $('.submit').click(function() {
 
+        if ($('.nameVal').val()) {
+            $('.login').css('display', 'none');
+            $('.talkTime').css('display', 'block');
+            $('#title').html('会话页');
+        } else {
+            alert('请输入用户名！');
+            return;
+        };
+
         var _params = {};
         var _data = {};
         //连接本地socket服务器
         ws = io.connect('ws://localhost:3000');
 
+        //监听连接成功
+        ws.on('connect', function(socket) {
+            alert("您已成功进入聊天室！");
+        });
+
         //监听断开连接
         ws.on('disconnect', function(socket) {
-            var reconnect = setInterval(function() {
-                socket.reconnect();
-                //监听重新连接
-                ws.on('reconnect', function(socket) {
-                    alert("重连成功！");
-                    clearInterval(reconnect);
-                });
-            }, 60000);
+            var isConfirm = confirm("您已断开连接，是否重新连接？")
+            if (isConfirm) {
+                //每5s重新连接服务器一次
+                var reConnect = setInterval(function() {
+                        io.connect('ws://localhost:3000');
+                    },
+                    5000);
+            } else {
+                return;
+            }
         });
 
         //监听连接失败
         ws.on('connect_failed', function(socket) {
-            var reconnect = setInterval(function() {
-                socket.reconnect();
-                //监听重新连接
-                ws.on('reconnect', function(socket) {
-                    alert("重连成功！");
-                    clearInterval(reconnect);
-                });
-            }, 60000);
+            alert("连接失败，请稍后重试！");
         });
 
         //监听重新连接失败
         ws.on('reconnect_failed', function(socket) {
-            var reconnect = setInterval(function() {
-                socket.reconnect();
-                //监听重新连接
-                ws.on('reconnect', function(socket) {
-                    alert("重连成功！");
-                    clearInterval(reconnect);
-                });
-            }, 60000);
+            alert("重新连接失败，请稍后重试！");
         });
 
         current_userName = $('.nameVal').val();
@@ -128,10 +131,10 @@ $(function() {
             var _params = {};
             if (i === outTimes) {
                 var params = { username: current_userName };
-                if(isEncrypt){
+                if (isEncrypt) {
                     //对数据加密 发送给服务器端
                     _params = encrypt(params);
-                }else{
+                } else {
                     //对数据不作处理 即不用加密
                     _params = params;
                 }
@@ -143,10 +146,10 @@ $(function() {
         //监听服务器端登陆
         ws.on('loginErroe', function(data) {
             var _data = {};
-            if(isDecrypt){
+            if (isDecrypt) {
                 //TODO 对数据进行解密
                 _data = data;
-            }else{
+            } else {
                 //数据透传
                 _data = data;
             }
@@ -157,10 +160,10 @@ $(function() {
         //监听服务器端登陆
         ws.on('login', function(data) {
             var _data = {};
-            if(isDecrypt){
+            if (isDecrypt) {
                 //TODO 对数据进行解密
                 _data = data;
-            }else{
+            } else {
                 //数据透传
                 _data = data;
             }
@@ -175,10 +178,10 @@ $(function() {
         //监听服务器端登出
         ws.on('logout', function(data) {
             var _data = {};
-            if(isDecrypt){
+            if (isDecrypt) {
                 //TODO 对数据进行解密
                 _data = data;
-            }else{
+            } else {
                 //数据透传
                 _data = data;
             }
@@ -194,10 +197,10 @@ $(function() {
         //监听服务器端登出
         ws.on('message', function(data) {
             var _data = {};
-            if(isDecrypt){
+            if (isDecrypt) {
                 //TODO 对数据进行解密
                 _data = data;
-            }else{
+            } else {
                 //数据透传
                 _data = data;
             }
@@ -214,21 +217,14 @@ $(function() {
 
         //告诉服务器端有用户登录
         var params = { username: current_userName };
-        if(isEncrypt){
+        if (isEncrypt) {
             //对数据加密 发送给服务器端
             _params = encrypt(params);
-        }else{
+        } else {
             //对数据不作处理 透传
-             _params = params;
+            _params = params;
         }
         ws.emit('login', _params);
-        if ($('.nameVal').val()) {
-            $('.login').css('display', 'none');
-            $('.talkTime').css('display', 'block');
-            $('#title').html('会话页');
-        } else {
-            alert('请输入用户名！');
-        }
     });
 
     //点击登出按钮
@@ -236,12 +232,12 @@ $(function() {
         i = 0;
         var _params = {};
         var params = { username: current_userName };
-        if(isEncrypt){
+        if (isEncrypt) {
             //对数据加密 发送给服务器端
             _params = encrypt(params);
-        }else{
+        } else {
             //对数据不作处理 透传
-             _params = params;
+            _params = params;
         }
         ws.emit('logout', _params);
         //简单的刷新页面
