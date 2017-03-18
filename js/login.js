@@ -6,6 +6,7 @@ $(function() {
     var outTimes = 600; //超时时间 默认600s
     var i = 0; //时间从0秒开始
     var history = ""; //历史记录
+    var socketId = "";
     var isEncrypt = false; //是否加密
     var isDecrypt = false; //是否解密
     var socketAdress = "ws://localhost:3000";//设置连接地址
@@ -110,12 +111,15 @@ $(function() {
                     },
                     5000);
             } else {
+                //简单的刷新页面
+                window.location.reload();
                 return;
             }
         });
 
         //监听连接失败
         ws.on('connect_failed', function(socket) {
+            socketId = ws.id;
             alert("连接失败，请稍后重试！");
         });
 
@@ -188,14 +192,13 @@ $(function() {
             }
             history = history + "<div class = 'robotMsg'>" + _data.msg + "</div>";
             $('.dialog').html(history);
-            $('.dialog')[0].scrollTop = $('.dialog')[0].scrollHeight;
             var sonHeight = $('.self').height() + 10;
             $('.msgBox').css('height', sonHeight);
             $('.dialog')[0].scrollTop = $('.dialog')[0].scrollHeight;
         });
 
 
-        //监听服务器端登出
+        //监听服务器端消息
         ws.on('message', function(data) {
             var _data = {};
             if (isDecrypt) {
@@ -217,7 +220,7 @@ $(function() {
         });
 
         //告诉服务器端有用户登录
-        var params = { username: current_userName };
+        var params = { username: current_userName};
         if (isEncrypt) {
             //对数据加密 发送给服务器端
             _params = encrypt(params);
