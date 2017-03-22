@@ -166,7 +166,7 @@ $(function() {
         });
 
         //监听服务器端登陆
-        ws.on('login', function(userIdS, data) {
+        ws.on('loginSelf', function(userIdS, data) {
             var _data = {};
             var _userIdS = '';
             if (isDecrypt) {
@@ -185,6 +185,31 @@ $(function() {
                 var sonHeight = $('.self').height() + 10;
                 $('.msgBox').css('height', sonHeight);
                 $('.dialog')[0].scrollTop = $('.dialog')[0].scrollHeight;
+            } else {
+                history = history + "<div class = 'robotMsg'>" + _data.msg + "</div>";
+                $('.dialog').html(history);
+                $('.dialog')[0].scrollTop = $('.dialog')[0].scrollHeight;
+                var sonHeight = $('.self').height() + 10;
+                $('.msgBox').css('height', sonHeight);
+                $('.dialog')[0].scrollTop = $('.dialog')[0].scrollHeight;
+            }
+        });
+
+        //监听服务器端登陆
+        ws.on('login', function(userIdS, data) {
+            var _data = {};
+            var _userIdS = '';
+            if (isDecrypt) {
+                //TODO 对数据进行解密
+                _userIdS = userIdS;
+                _data = data;
+            } else {
+                //数据透传
+                _userIdS = userIdS;
+                _data = data;
+            }
+            if (_userIdS === userId) {
+                //不作处理
             } else {
                 history = history + "<div class = 'robotMsg'>" + _data.msg + "</div>";
                 $('.dialog').html(history);

@@ -106,6 +106,9 @@ io.on('connection', function(socket) {
             //对数据不作处理 即不用加密
             _remoteObj = remoteObj;
         }
+        //用已存socket实例查找当前实例 单独发送消息
+        io.sockets.sockets[_userId].emit('loginSelf', _userId, _remoteObj);
+        //群发
         io.sockets.emit('login', _userId, _remoteObj);
     });
 
