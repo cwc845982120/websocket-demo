@@ -98,6 +98,7 @@ $(function() {
 
         //监听连接成功
         ws.on('connect', function(socket) {
+            clearInterval(reConnect);
             alert("您已成功进入聊天室！");
         });
 

@@ -6,7 +6,7 @@ var ejs = require('ejs');
 var io = require('socket.io')(http);
 var AES = require('./lib/encrypt/gibberish-aesObj');
 var RSA = require('./lib/encrypt/jsencryptObj');
-var crypto = require('crypto');
+var NodeRSA = require('node-rsa');
 
 //初始化变量
 var isEncrypt = false;//是否加密
