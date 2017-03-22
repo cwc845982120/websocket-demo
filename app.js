@@ -156,23 +156,4 @@ io.on('connection', function(socket) {
         }
         io.sockets.emit('message', _remoteObj);
     });
-
-    //监听单独发送
-    // socket.on('postMsg', function(userId, otherUserId, msg) {
-    //     var postUser;
-    //     console.log('发送信息用户socketId:' + users[userId]);
-    //     console.log('接受信息用户socketId:' + users[otherUserId]);
-    //     if (users[otherUserId]) {
-    //         for (var j = 0; users[otherUserId].length > j; j++) {
-    //             for (var i in usersSocket) {
-    //                 if (users[otherUserId][j] == usersSocket[i].id) {
-    //                     socket.broadcast.to(usersSocket[i].id).emit('newMsg', msg);
-    //                     console.log('接收人：', otherUserId, '发送人：', userId, '发送内容:', msg);
-    //                 }
-    //             }
-    //         }
-    //     } else {
-    //         console.log('用户离线');
-    //     }
-    // });
 });
