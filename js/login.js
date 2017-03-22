@@ -9,7 +9,9 @@ $(function() {
     var socketId = "";
     var isEncrypt = false; //是否加密
     var isDecrypt = false; //是否解密
-    var socketAdress = "ws://localhost:3000";//设置连接地址
+    var socketAdress = "ws://localhost:3000"; //设置连接地址
+    var reConnect = ""; //预设重新连接
+    var userId = ""; //预设用户Id
 
     //加密函数，依赖GibberishAES、JSEncrypt
     var RSA = function() {
@@ -59,7 +61,6 @@ $(function() {
         var content = $('textarea').val();
         if (content != '') {
             var params = {
-                //userid: this.userid,
                 username: current_userName,
                 content: content
             };
@@ -95,9 +96,10 @@ $(function() {
         var _data = {};
         //连接本地socket服务器
         ws = io.connect(socketAdress);
-
         //监听连接成功
         ws.on('connect', function(socket) {
+            userId = ws.id;
+            ws.emit('login', userId, _params);
             clearInterval(reConnect);
             alert("您已成功进入聊天室！");
         });
@@ -164,21 +166,33 @@ $(function() {
         });
 
         //监听服务器端登陆
-        ws.on('login', function(data) {
+        ws.on('login', function(userIdS, data) {
             var _data = {};
+            var _userIdS = '';
             if (isDecrypt) {
                 //TODO 对数据进行解密
+                _userIdS = userIdS;
                 _data = data;
             } else {
                 //数据透传
+                _userIdS = userIdS;
                 _data = data;
             }
-            history = history + "<div class = 'robotMsg'>" + _data.msg + "</div>";
-            $('.dialog').html(history);
-            $('.dialog')[0].scrollTop = $('.dialog')[0].scrollHeight;
-            var sonHeight = $('.self').height() + 10;
-            $('.msgBox').css('height', sonHeight);
-            $('.dialog')[0].scrollTop = $('.dialog')[0].scrollHeight;
+            if (_userIdS === userId) {
+                history = history + "<div class = 'robotMsg'>" + "您已加入房间" + "</div>";
+                $('.dialog').html(history);
+                $('.dialog')[0].scrollTop = $('.dialog')[0].scrollHeight;
+                var sonHeight = $('.self').height() + 10;
+                $('.msgBox').css('height', sonHeight);
+                $('.dialog')[0].scrollTop = $('.dialog')[0].scrollHeight;
+            } else {
+                history = history + "<div class = 'robotMsg'>" + _data.msg + "</div>";
+                $('.dialog').html(history);
+                $('.dialog')[0].scrollTop = $('.dialog')[0].scrollHeight;
+                var sonHeight = $('.self').height() + 10;
+                $('.msgBox').css('height', sonHeight);
+                $('.dialog')[0].scrollTop = $('.dialog')[0].scrollHeight;
+            }
         });
 
         //监听服务器端登出
@@ -221,7 +235,7 @@ $(function() {
         });
 
         //告诉服务器端有用户登录
-        var params = { username: current_userName};
+        var params = { username: current_userName };
         if (isEncrypt) {
             //对数据加密 发送给服务器端
             _params = encrypt(params);
@@ -229,7 +243,6 @@ $(function() {
             //对数据不作处理 透传
             _params = params;
         }
-        ws.emit('login', _params);
     });
 
     //点击登出按钮
