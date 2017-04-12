@@ -9,7 +9,7 @@ $(function() {
     var socketId = "";
     var isEncrypt = false; //是否加密
     var isDecrypt = false; //是否解密
-    var socketAdress = "ws://localhost:3000"; //设置连接地址
+    var socketAdress = "ws://localhost:3333/"; //设置连接地址
     var reConnect = ""; //预设重新连接
     var userId = ""; //预设用户Id
 
@@ -79,6 +79,34 @@ $(function() {
         }
     });
 
+    //监听键盘回车事件
+    $('textarea').bind('keydown', function(e) {
+        var key = e.which;
+        if (key == 13) {
+            e.preventDefault();
+            i = 0;
+            var _params = {};
+            var content = $('textarea').val();
+            if (content != '') {
+                var params = {
+                    username: current_userName,
+                    content: content
+                };
+                if (isEncrypt) {
+                    //对数据加密 发送给服务器端
+                    _params = encrypt(params);
+                } else {
+                    //对数据不作处理 透传
+                    _params = params;
+                }
+                ws.emit('message', _params);
+                $('textarea').val('');
+            } else {
+                alert('不能发送空的文本信息！');
+                return false;
+            }
+        }
+    });
 
     //点击登陆确认按钮
     $('.submit').click(function() {

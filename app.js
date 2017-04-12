@@ -15,7 +15,7 @@ var tool = require('./tool').tool;
 //初始化变量
 var isEncrypt = false; //是否加密
 var isDecrypt = false; //是否解密
-var port = process.env.PORT || 3000; //默认端口号
+var port = process.env.PORT || 3333; //默认端口号
 var peopleNum = 0; //当前在线人数
 var maxOnlineNum = 5; //设置最大在线人数
 var RSA_privateKey = 'MIICXAIBAAKBgQC7X71YhlfLw5c+0OMsUbr8LQz2XpH8NtqCZo1lacIV7a7XtrtdWOE9L8HPim4nB8UD9gCn5raCPf4OopaPbb25UEVfOm6WC11aDwxOkNnK7pUr2qNri/qBR7CQOhQr0pjGfIqKNznoADwrS8TosE08xMgQtP8S8Cuxcll0Oe3FxQIDAQABAoGAVog+b3WLckTfwljBsSQFkJRVminOjYXfn70wq5cN1Qaxalmvacq0Koe1n900Rb4m1E91uhSoULnEbInVsmNh7Dkemmn5NhkHfncQOyZyAATbTpi4kFNlgFQPCvG+nZkWlUWDfKFCMBr+ZrfFNa/ZufaqLyThgg3G+AHvO5eauIECQQD41ZbIwaUqLVypLsvPkzTgFPCpkdQ8/DdKmNbgGVPZ+9RCZ6tiuuobc1bpi38j6kNWESuO6nv2boYfqe8kJaiRAkEAwMUQWhjNEKRl0d9RrIsG7zGfwtRyAfTNFGRqbbVbApv6mZuE2A796uMaiSIbEB8oL9V7aRlI4JeVC2e6wS3D9QJAVLM/lC52LhkqxVvsfEe7Y9s84DuHZwrjNz03RyjX5gdWhRQMvpqpPZbRKsYVDQCc0xsdHJSshYGxne2WPVOkQQJAIL8ZOQTviP00YsOZ/0KayfVXG2S1fUmVsPoh7kMZk8blekSl+4IIdmdf8Z2+lS2FySJt1Xu7GpQFeKuFWR2qJQJBALb0l/Y+s9TEKroNHBzPNnrO4OHqsnoLT1bcUB5BTrSMk7PHhcLNie7iuG00VKuEEzICRXVi2WLagl6NRTsCXN0='; //RSA私钥
